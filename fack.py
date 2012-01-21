@@ -51,11 +51,26 @@ def update_index(index, fn, file_index):
 
 
 def main():
-    target = sys.argv[1]
-    files = sys.argv[2:]
+    options = []
+    i = 1
+    while i < len(sys.argv):
+        a = sys.argv[i]
+        if a[0] == '-':
+            options.append(a)
+            if a == '--':
+                break
+        else:
+            break
+        i += 1
+
+    if "-f" in options:
+        sys.exit(subprocess.call(["ack"] + options))
+
+    target = sys.argv[i]
+    files = sys.argv[i+1:]
 
     if not files:
-        files = subprocess.check_output(["ack", "-f"]).strip().split("\n")
+        files = subprocess.check_output(["ack"] + options + ["-f"]).strip().split("\n")
 
     catalog = read_catalog()
 
@@ -79,7 +94,7 @@ def main():
     if not matching_files:
         sys.exit(0)
     print matching_files
-    subprocess.call(["ack", "--with-filename", target] + list(matching_files))
+    subprocess.call(["ack"] + options + ["--with-filename", target] + list(matching_files))
 
 
 if __name__ == "__main__":
